@@ -1,5 +1,6 @@
 package com.example.ralph.contentprovidersclass;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,contacts);
         listView.setAdapter(adapter);
         //fetchContacts();
+        fetchMovies();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -46,15 +48,27 @@ public class MainActivity extends AppCompatActivity {
 //                intent.setType(ContactsContract.CommonDataKinds.Email.CONTENT_TYPE);
 //                startActivityForResult(intent,1);
 
-                Intent calendarIntent = new Intent();
-                calendarIntent.setData(CalendarContract.Events.CONTENT_URI);
-                calendarIntent.setAction(Intent.ACTION_INSERT);
-                calendarIntent.putExtra(CalendarContract.Events.TITLE,"Custom Title");
-                calendarIntent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,System.currentTimeMillis());
-                calendarIntent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,System.currentTimeMillis() + 100000L);
-                startActivity(calendarIntent);
+                Movie movie = new Movie("abc");
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MoviesContract.Movies.TITLE,movie.getTitle());
+                getContentResolver().insert(MoviesContract.Movies.CONTENT_URI,contentValues);
+                fetchMovies();
+
             }
         });
+    }
+
+    private void fetchMovies() {
+        Uri contactsUri = MoviesContract.Movies.CONTENT_URI;
+        Cursor cursor = getContentResolver().query(contactsUri,null,null,null,null);
+        if(cursor != null){
+            contacts.clear();
+            while (cursor.moveToNext()){
+                String title = cursor.getString(cursor.getColumnIndex(MoviesContract.Movies.TITLE));
+                contacts.add(title);
+            }
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
