@@ -1,7 +1,10 @@
 package com.example.ralph.contentprovidersclass;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,7 +23,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     ListView listView;
     ArrayAdapter<String> adapter;
@@ -37,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,contacts);
         listView.setAdapter(adapter);
         //fetchContacts();
-        fetchMovies();
+        //fetchMovies();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -52,10 +55,12 @@ public class MainActivity extends AppCompatActivity {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(MoviesContract.Movies.TITLE,movie.getTitle());
                 getContentResolver().insert(MoviesContract.Movies.CONTENT_URI,contentValues);
-                fetchMovies();
+                //fetchMovies();
 
             }
         });
+
+        getLoaderManager().initLoader(1,null,this);
     }
 
     private void fetchMovies() {
@@ -120,5 +125,29 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        return new CursorLoader(this,MoviesContract.Movies.CONTENT_URI,null,null,null,null);
+
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if(cursor != null){
+            contacts.clear();
+            while (cursor.moveToNext()){
+                String title = cursor.getString(cursor.getColumnIndex(MoviesContract.Movies.TITLE));
+                contacts.add(title);
+            }
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 }

@@ -69,10 +69,15 @@ public class MoviesProvider extends ContentProvider {
             case CODE_MOVIES:
                 long id =  openHelper.getWritableDatabase().insert(MoviesContract.Movies.TABLE_NAME,null,values);
                 output = MoviesContract.Movies.buildMovieUri(id);
+                break;
             case  CODE_REVIEWS:
                 long rid =  openHelper.getWritableDatabase().insert(MoviesContract.Reviews.TABLE_NAME,null,values);
                 output = MoviesContract.Reviews.buildReviewUri(rid);
         }
+        if(output != null){
+            getContext().getContentResolver().notifyChange(output,null);
+        }
+
         return  output;
     }
 
@@ -98,6 +103,9 @@ public class MoviesProvider extends ContentProvider {
             case  CODE_REVIEWS:
                 output = openHelper.getReadableDatabase().query(MoviesContract.Reviews.TABLE_NAME,projection,selection,selectionArgs,null,null,sortOrder);
                 break;
+        }
+        if(output != null){
+            output.setNotificationUri(getContext().getContentResolver(),uri);
         }
         return output;
     }
