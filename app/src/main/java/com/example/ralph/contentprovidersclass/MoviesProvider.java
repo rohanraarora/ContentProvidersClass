@@ -73,6 +73,7 @@ public class MoviesProvider extends ContentProvider {
             case  CODE_REVIEWS:
                 long rid =  openHelper.getWritableDatabase().insert(MoviesContract.Reviews.TABLE_NAME,null,values);
                 output = MoviesContract.Reviews.buildReviewUri(rid);
+                break;
         }
         if(output != null){
             getContext().getContentResolver().notifyChange(output,null);
